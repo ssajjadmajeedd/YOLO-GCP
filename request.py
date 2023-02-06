@@ -10,10 +10,12 @@ headers = {"content-type": "image/jpg"}
 raw_image_upload = cv2.imread('semple_data/highway.jpg')
 params = [cv2.IMWRITE_JPEG_QUALITY, 50,  cv2.IMWRITE_JPEG_OPTIMIZE, 1]
 _, raw_image_encoded = cv2.imencode(".jpg", raw_image_upload,params)
+raw_image = raw_image_encoded.tobytes()
+
 
 
 # send HTTP request to the server
-response = requests.post(url, data=raw_image_encoded.tostring(), headers=headers)
+response = requests.post(url, data=raw_image.tostring(), headers=headers)
 predictions = response.json()
 
 

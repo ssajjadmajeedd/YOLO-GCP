@@ -61,7 +61,6 @@ def get_predictions(raw_image):
     
     
     # load input image and grab its spatial dimensions
-    raw_image = raw_image.tobytes()
     nparr = np.frombuffer(raw_image, np.uint8)
     
     
