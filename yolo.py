@@ -1,10 +1,22 @@
 import os
 import time
 import math
+import urllib
 
 import pandas as pd
 import numpy as np
 import cv2
+
+def download_model_weights():
+    download_url = "https://pjreddie.com/media/files/yolov3.weights"
+    
+    print("downloading model weights...")
+    opener = urllib.request.URLopener()
+    opener.retrieve(download_url, "yolo-coco/yolov3.weights")
+    print("model download is complete.")
+
+    return
+
 
 
 def get_predictions(raw_image):
@@ -18,15 +30,25 @@ def get_predictions(raw_image):
     labels = open(labelsPath).read().strip().split("\n")
 
     
-    
-    
     #creating colour list to represent each class label
     np.random.seed(250)
     colours = np.random.randint(0,255, size= (len(labels),3),dtype="uint8")
     
+    
+    # download model weights if not already downloaded
+    model_found = 0
+    files = os.listdir("yolo-coco")
+    
+    if "yolov3.weights" in files:
+        model_found = 1
+
+    if model_found == 0:
+        download_model_weights()
+    
+    
     #derive the paths to the YOLO weights and model configuration
     weightsPath = os.path.sep.join([yolo_dir, "yolov3.weights"])
-    configPath = os.path.sep.join([yolo_dir, "yolo3.cfg"])
+    configPath = os.path.sep.join([yolo_dir, "yolov3.cfg"])
     
     
     # load our YOLO object detector pretrained model trained on COCO dataset (80 classes)
