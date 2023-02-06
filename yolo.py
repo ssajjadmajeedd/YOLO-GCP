@@ -15,7 +15,7 @@ def download_model_weights():
     
     print("downloading model weights...")
     opener = urllib.request.URLopener()
-    opener.retrieve(download_url, "yolo-coco/yolov3.weights")
+    opener.retrieve(download_url, "pretrain_yolo/yolov3.weights")
     print("model download is complete.")
 
     return
