@@ -7,7 +7,7 @@ url = "http://<external IP address>:5000/predict"
 headers = {"content-type": "image/jpg"}
 
 # encode image
-raw_image_upload = cv2.imread('images/highway.jpg')
+raw_image_upload = cv2.imread('semple_data/highway.jpg')
 params = [cv2.IMWRITE_JPEG_QUALITY, 50,  cv2.IMWRITE_JPEG_OPTIMIZE, 1]
 _, raw_image_encoded = cv2.imencode(".jpg", raw_image_upload,params)
 
