@@ -7,6 +7,9 @@ import pandas as pd
 import numpy as np
 import cv2
 
+
+
+#function to download weight and model configuration file
 def download_model_weights():
     download_url = "https://pjreddie.com/media/files/yolov3.weights"
     
@@ -21,23 +24,24 @@ def download_model_weights():
 
 def get_predictions(raw_image):
     
+    # set directory and parameters
     yolo_dir = "pretrain_yolo"
     confidence_lvl = 0.4
     treshold = 0.55
     
-    #load the COCO class labels our YOLO model was trained on
+    # load the COCO class labels which yolo model was trained on
     labelsPath = os.path.sep.join([yolo_dir, "coco.names"])
     labels = open(labelsPath).read().strip().split("\n")
 
     
-    #creating colour list to represent each class label
+    # creating colour list for each class
     np.random.seed(250)
     colours = np.random.randint(0,255, size= (len(labels),3),dtype="uint8")
     
     
-    # download model weights if not already downloaded
+    # download model weights if 
     model_found = 0
-    files = os.listdir("yolo-coco")
+    files = os.listdir("pretrain_yolo")
     
     if "yolov3.weights" in files:
         model_found = 1
@@ -46,12 +50,12 @@ def get_predictions(raw_image):
         download_model_weights()
     
     
-    #derive the paths to the YOLO weights and model configuration
+    # get path for yolo weight and model configuration
     weightsPath = os.path.sep.join([yolo_dir, "yolov3.weights"])
     configPath = os.path.sep.join([yolo_dir, "yolov3.cfg"])
     
     
-    # load our YOLO object detector pretrained model trained on COCO dataset (80 classes)
+    # loading yolo pretrained model
     print("[INFO] loading YOLO model from disk..")
     yolo_model = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
     
@@ -65,24 +69,18 @@ def get_predictions(raw_image):
     (H, W) = image.shape[:2]
     
     
-    # determine only the *output* layer names that we need from YOLO
+    # get output layers of the model
     ln = yolo_model.getLayerNames()
     ln = [ln[i - 1] for i in yolo_model.getUnconnectedOutLayers()]
     
     
-    # construct a blob from the input image and then perform a forward
-    # pass of the YOLO object detector, giving us our bounding boxes and
-    # associated probabilities
+    # construct a blob from the input image and then perform a forward and get probabilities
     blob = cv2.dnn.blobFromImage(image, 1 / 255, (416, 416), swapRB=True, crop=False)
     yolo_model.setInput(blob)
-    start = time.time()
     layerOutputs = yolo_model.forward(ln)
-    end = time.time()
     
-    # show timing information on YOLO
-    print("[INFO] YOLO took {:.6f} seconds".format(end - start))
     
-    # initialize our lists of detected bounding boxes, confidences, and class IDs, respectively
+    # initialize our lists for detected bounding boxes, confidences, and class IDs.
     boxes = []
     confidences = []
     classIDs = []
@@ -92,22 +90,22 @@ def get_predictions(raw_image):
     for output in layerOutputs:
         # loop over each of the detections
         for detection in output:
-            # extract the class ID and confidence (i.e., probability) of the current object detection
+            # extract the class ID and probability of the current object detection
             scores = detection[5:]
             classID = np.argmax(scores)
             confidence = scores[classID]
 
-            # filter out weak predictions by ensuring the detected probability is greater than the minimum probability
+            # filter out weak predictions
             if confidence > confidence_lvl:
                 # scale the bounding box coordinates back relative to the size of the image
                 box = detection[0:4] * np.array([W, H, W, H])
                 (centerX, centerY, width, height) = box.astype("int")
 
-                # use the center (x, y)-coordinates to derive the top and and left corner of the bounding box
+                # use the center (x, y) coordinates to derive the top and and left corner of the bounding box
                 x = int(centerX - (width / 2))
                 y = int(centerY - (height / 2))
 
-                # update our list of bounding box coordinates, confidences and class IDs
+                # update our list of bounding box coordinates, confidences (probabilities) and class IDs
                 boxes.append([x, y, int(width), int(height)])
                 confidences.append(float(confidence))
                 classIDs.append(classID)
