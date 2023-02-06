@@ -4,7 +4,7 @@ from yolo import get_predictions
 
 app = Flask(__name__)
 
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=['GET', 'POST'])
 def predict():
     predictions = get_predictions(request)
 
