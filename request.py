@@ -13,7 +13,7 @@ _, raw_image_encoded = cv2.imencode(".jpg", raw_image_upload,params)
 
 
 # send HTTP request to the server
-response = requests.post(url, data=img_encoded.tostring(), headers=headers)
+response = requests.post(url, data=raw_image_encoded.tostring(), headers=headers)
 predictions = response.json()
 
 
